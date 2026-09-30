@@ -5,7 +5,8 @@ import { Navbar } from '../components/Navbar/Navbar';
 import { CollaborativeEditor, EditorHandle } from '../components/Editor/CollaborativeEditor';
 import { AICopilotSidebar } from '../components/Sidebar/AICopilotSidebar';
 import { DocumentModal } from '../components/Documents/DocumentModal';
-import { ShieldCheck, Cpu, Database, Network } from 'lucide-react';
+import { RoomModal } from '../components/Rooms/RoomModal';
+import { ShieldCheck, Cpu, Database, Network, Users } from 'lucide-react';
 import { getApiUrl } from '../lib/config';
 
 interface DocumentSummary {
@@ -23,13 +24,43 @@ export default function WorkspacePage() {
   const [activeDocTitle, setActiveDocTitle] = useState<string>(
     'System Architecture: Distributed CRDTs & HNSW Vector Search'
   );
+  const [roomCode, setRoomCode] = useState<string>('NX-ALPHA');
+  const [recentRooms, setRecentRooms] = useState<string[]>(['NX-ALPHA']);
   const [isDocModalOpen, setIsDocModalOpen] = useState<boolean>(false);
+  const [isRoomModalOpen, setIsRoomModalOpen] = useState<boolean>(false);
   const [editorStats, setEditorStats] = useState<{ characters: number; words: number }>({
     characters: 0,
     words: 0,
   });
 
   const apiUrl = getApiUrl();
+
+  // Initialize Room from URL Query Parameter or LocalStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const urlRoom = params.get('room');
+
+      let savedRecent: string[] = [];
+      try {
+        const stored = localStorage.getItem('nexus_recent_rooms');
+        if (stored) savedRecent = JSON.parse(stored);
+      } catch (e) {}
+
+      if (urlRoom) {
+        const cleaned = urlRoom.toUpperCase();
+        setRoomCode(cleaned);
+        const updated = Array.from(new Set([cleaned, ...savedRecent])).slice(0, 5);
+        setRecentRooms(updated);
+        localStorage.setItem('nexus_recent_rooms', JSON.stringify(updated));
+      } else {
+        const lastRoom = localStorage.getItem('nexus_last_room') || 'NX-MAIN';
+        setRoomCode(lastRoom);
+        const updated = Array.from(new Set([lastRoom, ...savedRecent])).slice(0, 5);
+        setRecentRooms(updated);
+      }
+    }
+  }, []);
 
   // Fetch all indexed documents from backend
   const fetchDocuments = async () => {
@@ -62,6 +93,26 @@ export default function WorkspacePage() {
     setActiveDocTitle(title);
   };
 
+  const handleJoinRoom = (newCode: string, customTitle?: string) => {
+    const cleanedCode = newCode.toUpperCase();
+    setRoomCode(cleanedCode);
+
+    if (customTitle) {
+      setActiveDocTitle(customTitle);
+    }
+
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('room', cleanedCode);
+      window.history.pushState({}, '', url.toString());
+
+      localStorage.setItem('nexus_last_room', cleanedCode);
+      const updated = Array.from(new Set([cleanedCode, ...recentRooms])).slice(0, 5);
+      setRecentRooms(updated);
+      localStorage.setItem('nexus_recent_rooms', JSON.stringify(updated));
+    }
+  };
+
   const handleInsertToEditor = (content: string) => {
     if (editorRef.current) {
       editorRef.current.insertContent(content);
@@ -73,27 +124,43 @@ export default function WorkspacePage() {
       {/* Top Navbar */}
       <Navbar
         currentTitle={activeDocTitle}
+        currentRoomCode={roomCode}
         stats={editorStats}
         onOpenDocModal={() => setIsDocModalOpen(true)}
+        onOpenRoomModal={() => setIsRoomModalOpen(true)}
       />
 
       {/* Main Workspace Layout */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-8 flex flex-col lg:flex-row gap-6">
         {/* Left Column: CRDT Collaborative Editor */}
         <div className="flex-1 flex flex-col gap-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h1 className="text-xl font-bold tracking-tight text-white">{activeDocTitle}</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-bold tracking-tight text-white">{activeDocTitle}</h1>
+                <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                  {roomCode}
+                </span>
+              </div>
               <p className="text-xs text-slate-400 mt-0.5">
-                Local-First Multi-User Canvas • Yjs Commutative Sync • 5s Debounced Postgres Persistence
+                Private CRDT Room • Real-Time Commutative State • Sub-50ms Sync
               </p>
             </div>
+
+            <button
+              onClick={() => setIsRoomModalOpen(true)}
+              className="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/60 hover:border-slate-700 text-xs font-medium text-indigo-400 flex items-center gap-1.5 transition"
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>Invite Friends to {roomCode}</span>
+            </button>
           </div>
 
           <CollaborativeEditor
-            key={activeDocId}
+            key={`${activeDocId}-${roomCode}`}
             ref={editorRef}
             documentId={activeDocId}
+            roomCode={roomCode}
             initialTitle={activeDocTitle}
             onStatsChange={setEditorStats}
           />
@@ -127,8 +194,8 @@ export default function WorkspacePage() {
             <div className="p-3 rounded-lg border border-slate-800/80 bg-slate-900/40 flex items-center gap-2.5">
               <ShieldCheck className="w-4 h-4 text-sky-400 shrink-0" />
               <div className="text-[11px]">
-                <div className="font-semibold text-slate-200">Local-First</div>
-                <div className="text-slate-400">Offline Resilience</div>
+                <div className="font-semibold text-slate-200">Room Isolation</div>
+                <div className="text-slate-400">Scoped Yjs Channels</div>
               </div>
             </div>
           </div>
@@ -140,6 +207,15 @@ export default function WorkspacePage() {
           onInsertToEditor={handleInsertToEditor}
         />
       </main>
+
+      {/* Room Code Management & Invite Modal */}
+      <RoomModal
+        isOpen={isRoomModalOpen}
+        onClose={() => setIsRoomModalOpen(false)}
+        currentRoomCode={roomCode}
+        onJoinRoom={handleJoinRoom}
+        recentRooms={recentRooms}
+      />
 
       {/* Document Switcher & Ingest Modal */}
       <DocumentModal

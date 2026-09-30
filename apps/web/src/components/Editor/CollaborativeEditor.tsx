@@ -39,12 +39,13 @@ export interface EditorHandle {
 
 interface CollaborativeEditorProps {
   documentId: string;
+  roomCode?: string;
   initialTitle?: string;
   onStatsChange?: (stats: { characters: number; words: number }) => void;
 }
 
 export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorProps>(
-  ({ documentId, initialTitle = 'Untitled Document', onStatsChange }, ref) => {
+  ({ documentId, roomCode, initialTitle = 'Untitled Document', onStatsChange }, ref) => {
     const [ydoc, setYdoc] = useState<Y.Doc | null>(null);
     const [provider, setProvider] = useState<WebsocketProvider | null>(null);
     const [isConnected, setIsConnected] = useState<boolean>(false);
@@ -67,7 +68,8 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
       // Initialize Yjs Document & WebSocket Provider
       const doc = new Y.Doc();
       const wsUrl = getWsUrl();
-      const wsProvider = new WebsocketProvider(wsUrl, `crdt-${documentId}`, doc);
+      const roomChannel = roomCode ? `room-${roomCode}` : `crdt-${documentId}`;
+      const wsProvider = new WebsocketProvider(wsUrl, roomChannel, doc);
 
       wsProvider.on('status', (event: { status: string }) => {
         setIsConnected(event.status === 'connected');
@@ -96,7 +98,7 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
         wsProvider.destroy();
         doc.destroy();
       };
-    }, [documentId]);
+    }, [documentId, roomCode]);
 
     const editor = useEditor(
       {

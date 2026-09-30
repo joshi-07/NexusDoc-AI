@@ -24,6 +24,8 @@ import {
   Users,
 } from 'lucide-react';
 
+import { getWsUrl } from '../../lib/config';
+
 const COLORS = [
   '#f43f5e', '#ec4899', '#d946ef', '#a855f7',
   '#8b5cf6', '#6366f1', '#3b82f6', '#0ea5e9',
@@ -64,7 +66,7 @@ export const CollaborativeEditor = forwardRef<EditorHandle, CollaborativeEditorP
 
       // Initialize Yjs Document & WebSocket Provider
       const doc = new Y.Doc();
-      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:4000';
+      const wsUrl = getWsUrl();
       const wsProvider = new WebsocketProvider(wsUrl, `crdt-${documentId}`, doc);
 
       wsProvider.on('status', (event: { status: string }) => {

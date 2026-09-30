@@ -6,6 +6,7 @@ import { CollaborativeEditor, EditorHandle } from '../components/Editor/Collabor
 import { AICopilotSidebar } from '../components/Sidebar/AICopilotSidebar';
 import { DocumentModal } from '../components/Documents/DocumentModal';
 import { ShieldCheck, Cpu, Database, Network } from 'lucide-react';
+import { getApiUrl } from '../lib/config';
 
 interface DocumentSummary {
   id: string;
@@ -28,7 +29,7 @@ export default function WorkspacePage() {
     words: 0,
   });
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+  const apiUrl = getApiUrl();
 
   // Fetch all indexed documents from backend
   const fetchDocuments = async () => {

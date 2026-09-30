@@ -10,6 +10,7 @@ import {
   Layers,
   ExternalLink,
 } from 'lucide-react';
+import { getApiUrl } from '../../lib/config';
 
 interface NavbarProps {
   currentTitle: string;
@@ -18,7 +19,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ currentTitle, stats, onOpenDocModal }: NavbarProps) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+  const apiUrl = getApiUrl();
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/80 backdrop-blur-md px-4 lg:px-8 py-3 flex items-center justify-between">

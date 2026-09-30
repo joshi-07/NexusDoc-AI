@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Plus, FileText, Check, Upload, X, RefreshCw } from 'lucide-react';
+import { getApiUrl } from '../../lib/config';
 
 interface DocumentInfo {
   id: string;
@@ -35,7 +36,7 @@ export function DocumentModal({
 
   if (!isOpen) return null;
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+  const apiUrl = getApiUrl();
 
   const handleCreateDocument = async (e: React.FormEvent) => {
     e.preventDefault();

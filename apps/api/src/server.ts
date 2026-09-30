@@ -76,7 +76,7 @@ WebSocket synchronization updates are broadcast immediately to connected clients
     console.warn('Notice during document seed:', seedErr.message);
   }
 
-  server.listen(PORT, () => {
+  server.listen(PORT, '0.0.0.0', () => {
     console.log(`============================================================`);
     console.log(`🚀 NexusDoc AI Backend Server running at http://localhost:${PORT}`);
     console.log(`🔌 CRDT WebSocket Synchronization active at ws://localhost:${PORT}/crdt`);

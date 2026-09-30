@@ -13,6 +13,7 @@ import {
   AlertCircle,
   BookOpen,
 } from 'lucide-react';
+import { getApiUrl } from '../../lib/config';
 
 interface AICopilotSidebarProps {
   documentId: string;
@@ -55,7 +56,7 @@ export function AICopilotSidebar({ documentId, onInsertToEditor }: AICopilotSide
   const [searchLatency, setSearchLatency] = useState<number | null>(null);
   const [isSearching, setIsSearching] = useState(false);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+  const apiUrl = getApiUrl();
 
   // Handle RAG Chat
   const handleSendMessage = async (e: React.FormEvent) => {

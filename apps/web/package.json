@@ -4,9 +4,9 @@
   "description": "NexusDoc AI - Next.js Collaborative Canvas with Tiptap, Yjs CRDT, and AI Copilot",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3000",
+    "dev": "next dev -p 3000 -H 0.0.0.0",
     "build": "next build",
-    "start": "next start -p 3000",
+    "start": "next start -p 3000 -H 0.0.0.0",
     "lint": "next lint"
   },
   "dependencies": {

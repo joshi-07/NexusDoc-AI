@@ -1,0 +1,31 @@
+{
+  "name": "nexusdoc-ai-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NexusDoc AI - Agentic RAG Knowledge Platform with CRDT-based Real-Time Collaborative Canvas",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspaces --if-present",
+    "build:api": "npm run build --workspace=apps/api",
+    "build:web": "npm run build --workspace=apps/web",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "keywords": [
+    "crdt",
+    "yjs",
+    "rag",
+    "pgvector",
+    "hnsw",
+    "bullmq",
+    "nextjs",
+    "tiptap",
+    "realtime-collaboration"
+  ],
+  "author": "NexusDoc AI Team",
+  "license": "MIT"
+}

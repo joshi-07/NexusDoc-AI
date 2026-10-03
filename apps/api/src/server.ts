@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Mount REST API
 app.use('/api', apiRouter);
 
-// Root greeting
+// Root greeting & Render health check probe
 app.get('/', (_req, res) => {
   res.json({
     name: 'NexusDoc AI Backend API',
@@ -27,6 +27,10 @@ app.get('/', (_req, res) => {
     version: '1.0.0',
     documentation: '/api/health',
   });
+});
+
+app.get('/healthz', (_req, res) => {
+  res.status(200).send('OK');
 });
 
 const server = http.createServer(app);

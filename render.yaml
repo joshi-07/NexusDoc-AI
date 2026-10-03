@@ -1,0 +1,42 @@
+# Render Blueprint for NexusDoc AI
+# Learn more: https://render.com/docs/blueprint-spec
+
+services:
+  # 1. Backend Service: Express REST API + Yjs CRDT WebSocket Server
+  - type: web
+    name: nexusdoc-api
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run build:api
+    startCommand: npm run start:api
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      # Optional: Add OpenAI API key if desired. If omitted, built-in resilient vector engine runs.
+      - key: OPENAI_API_KEY
+        sync: false
+      # Optional: Add PostgreSQL (pgvector) connection string if using a cloud database.
+      - key: DATABASE_URL
+        sync: false
+      # Optional: Add Redis connection string if using cloud Redis.
+      - key: REDIS_URL
+        sync: false
+
+  # 2. Frontend Service: Next.js 14 Collaborative Canvas & AI Copilot
+  - type: web
+    name: nexusdoc-web
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run build:web
+    startCommand: npm run start:web
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Set this to your deployed nexusdoc-api URL (e.g. https://nexusdoc-api.onrender.com)
+      - key: NEXT_PUBLIC_API_URL
+        sync: false

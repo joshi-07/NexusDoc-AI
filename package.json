@@ -15,6 +15,7 @@
     "build:web": "npm run build --workspace=@nexusdoc/web",
     "start:api": "node apps/api/dist/server.js",
     "start:web": "npm run start --workspace=@nexusdoc/web",
+    "start": "npm run start:web",
     "lint": "npm run lint --workspaces --if-present"
   },
   "keywords": [
